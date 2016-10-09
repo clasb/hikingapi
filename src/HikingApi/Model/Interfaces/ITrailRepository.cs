@@ -7,14 +7,14 @@ namespace HikingApi.Model.Interfaces
 {
     public interface ITrailRepository
     {
-        bool Add(Trail trail);
-        bool Update(Trail trail);
-        IEnumerable<Trail> GetAll();
-        IEnumerable<Trail> GetNear(double latitude, double longitude);
-        IEnumerable<Trail> GetNear(MapPoint mapPoint);
-        IEnumerable<Trail> GetNear(Trail trail);
-        Trail Find(string key);
-        Trail Remove(string key);
-        Trail Remove(Trail trail);
+        Task<bool> Add(Trail trail);
+        Task<bool> Update(Trail trail);
+        Task<IEnumerable<Trail>> GetAll();
+        Task<IEnumerable<Trail>> GetNear(double latitude, double longitude);
+        Task<IEnumerable<Trail>> GetNear(MapPoint mapPoint);
+        Task<IEnumerable<Trail>> GetNear(Trail trail);
+        Task<Trail> Find(string key);
+        Task<Trail> Remove(string key);
+        Task<Trail> Remove(Trail trail);
     }
 }

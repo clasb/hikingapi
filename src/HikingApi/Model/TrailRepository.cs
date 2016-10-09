@@ -1,4 +1,5 @@
 ﻿using HikingApi.Model.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,57 +9,66 @@ namespace HikingApi.Model
 {
     public class TrailRepository : ITrailRepository
     {
-        public bool Add(Trail trail)
+        private HikingContext _context;
+
+        public TrailRepository(HikingContext context)
         {
-            trail.Key = Guid.NewGuid().ToString();
+            _context = context;
+        }
+
+        public async Task<bool> Add(Trail trail)
+        {
+            trail.TrailId = IdHelper.GetId();
+            foreach (var point in trail.MapPoints)
+            {
+                point.TrailId = trail.TrailId;
+                point.MapPointId = IdHelper.GetId();
+            }
+            _context.Trails.Add(trail);
+            await _context.SaveChangesAsync();
             return true;
         }
 
-        public Trail Find(string key)
+        public async Task<Trail> Find(string id)
         {
-            if (key == null)
+            if (id == null)
             {
                 return null;
             }
-            return new Trail() { Key = key };
+            return await _context.Trails.Include(t => t.MapPoints).FirstAsync(t => t.TrailId == id);
         }
 
-        public IEnumerable<Trail> GetAll()
+        public async Task<IEnumerable<Trail>> GetAll()
         {
-            return new List<Trail>()
-            {
-                Find("123"),
-                Find("234"),
-                Find("345")
-            };
+            return await _context.Trails.ToListAsync();
         }
 
-        public IEnumerable<Trail> GetNear(Trail trail)
+        public async Task<IEnumerable<Trail>> GetNear(Trail trail)
         {
-            return GetAll();
+            return await GetAll();
         }
 
-        public IEnumerable<Trail> GetNear(MapPoint mapPoint)
+        public async Task<IEnumerable<Trail>> GetNear(MapPoint mapPoint)
         {
-            return GetAll();
+            return await GetAll();
         }
 
-        public IEnumerable<Trail> GetNear(double latitude, double longitude)
+        public async Task<IEnumerable<Trail>> GetNear(double latitude, double longitude)
         {
-            return GetAll();
+            return await GetAll();
         }
 
-        public Trail Remove(Trail trail)
+        public async Task<Trail> Remove(Trail trail)
         {
-            return new Trail() { Key = trail.Key };
+            return new Trail() { TrailId = trail.TrailId };
         }
 
-        public Trail Remove(string key)
+        public async Task<Trail> Remove(string key)
         {
-            return new Trail() { Key = key };
+            return new Trail() { TrailId = key };
         }
 
-        public bool Update(Trail trail)
+        public async Task<bool> Update(Trail trail)
         {
             return true;
         }

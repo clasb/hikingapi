@@ -21,33 +21,35 @@ namespace HikingApi.Controllers
 
         [HttpPost]
         [Route("create")]
-        public IActionResult Create([FromBody] Trail trail)
+        public async Task<IActionResult> Create([FromBody] Trail trail)
         {
             if (trail == null)
             {
                 return BadRequest();
             }
-            Trails.Add(trail);
-            return Created("asd", trail);
-            //return CreatedAtRoute("getbyid", new { id = trail.Key }, trail);
+            await Trails.Add(trail);
+            //return Created("asd", trail);
+            return CreatedAtRoute("getbyid", new { id = trail.TrailId }, trail);
         }
 
         [HttpPut("{id}")]
         [Route("update")]
-        public IActionResult Update(string id, [FromBody] Trail trail)
+        public async Task<IActionResult> Update(string id, [FromBody] Trail trail)
         {
-            if (trail == null || trail.Key != id)
+            //TODO: Is this thread safe?! Two awaits in one method..
+            if (trail == null || trail.TrailId != id)
             {
                 return BadRequest();
             }
 
-            var todo = Trails.Find(id);
+            var todo = await Trails.Find(id);
             if (todo == null)
             {
                 return NotFound();
             }
 
-            if (!Trails.Update(trail))
+            var updated = await Trails.Update(trail);
+            if (!updated)
             {
                 return BadRequest();
             }
@@ -56,16 +58,16 @@ namespace HikingApi.Controllers
 
         [HttpGet]
         [Route("getall")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(Trails.GetAll());
+            return Ok(await Trails.GetAll());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "getbyid")]
         [Route("getbyid")]
-        public IActionResult GetById(string id)
+        public async Task<IActionResult> GetById(string id)
         {
-            var trail = Trails.Find(id);
+            var trail = await Trails.Find(id);
             if (trail == null)
             {
                 return NotFound();
@@ -75,9 +77,9 @@ namespace HikingApi.Controllers
 
         [HttpGet("{latitude},{longitude}")]
         [Route("getbycoordinates")]
-        public IActionResult GetNear(double latitude, double longitude)
+        public async Task<IActionResult> GetNear(double latitude, double longitude)
         {
-            var trail = Trails.GetNear(latitude, longitude);
+            var trail = await Trails.GetNear(latitude, longitude);
             if (trail == null)
             {
                 return NotFound();
@@ -87,9 +89,9 @@ namespace HikingApi.Controllers
 
         [HttpPost]
         [Route("getneartrail")]
-        public IActionResult GetNear([FromBody] Trail t)
+        public async Task<IActionResult> GetNear([FromBody] Trail t)
         {
-            var trail = Trails.GetNear(t);
+            var trail = await Trails.GetNear(t);
             if (trail == null)
             {
                 return NotFound();
@@ -99,9 +101,9 @@ namespace HikingApi.Controllers
 
         [HttpPost]
         [Route("getnearpoint")]
-        public IActionResult GetNear([FromBody] MapPoint point)
+        public async Task<IActionResult> GetNear([FromBody] MapPoint point)
         {
-            var trail = Trails.GetNear(point);
+            var trail = await Trails.GetNear(point);
             if (trail == null)
             {
                 return NotFound();
@@ -111,9 +113,9 @@ namespace HikingApi.Controllers
 
         [HttpDelete]
         [Route("removetrail")]
-        public IActionResult Remove([FromBody] Trail t)
+        public async Task<IActionResult> Remove([FromBody] Trail t)
         {
-            var trail = Trails.Remove(t);
+            var trail = await Trails.Remove(t);
             if (trail == null)
             {
                 return NotFound();
@@ -123,9 +125,9 @@ namespace HikingApi.Controllers
 
         [HttpDelete("{id}")]
         [Route("removetrailbyid")]
-        public IActionResult Remove(string id)
+        public async Task<IActionResult> Remove(string id)
         {
-            var trail = Trails.Remove(id);
+            var trail = await Trails.Remove(id);
             if (trail == null)
             {
                 return NotFound();

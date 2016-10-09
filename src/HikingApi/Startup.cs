@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using HikingApi.Model;
 using HikingApi.Model.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace HikingApi
 {
@@ -30,17 +31,19 @@ namespace HikingApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-
+            services.AddDbContext<HikingContext>(options => options.UseSqlServer(Configuration.GetConnectionString("HikingConnection")));
             services.AddSingleton<ITrailRepository, TrailRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, HikingContext context)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
             app.UseMvc();
+
+            DbInit.Init(context);
         }
     }
 }

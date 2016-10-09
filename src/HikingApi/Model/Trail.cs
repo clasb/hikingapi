@@ -7,7 +7,7 @@ namespace HikingApi.Model
 {
     public class Trail
     {
-        public string Key { get; set; }
+        public string TrailId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Rating { get; set; }
